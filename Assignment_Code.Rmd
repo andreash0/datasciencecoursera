@@ -8,7 +8,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+opts_knit$set(root.dir = 'C:/Users/andre/OneDrive/Dokumente/01_Programming/Coursera/Data Science Spezialization/02_R-Programming/Week_2')
 ```
 
 ## Exercise 1
@@ -20,25 +21,38 @@ Thereby all NAs are ignored.
 ```{r test}
 pollutantmean <- function(directory, pollutant, id = 1:332){
         
+        new_data <- data.frame()
+        mydata <- data.frame()
+        
         #Examine if current wd is "specdata"
         curr_wd <- getwd()
         
-        if  (substr(curr_wd, nchar(curr_wd)-8+1, nchar(curr_wd)) != "specdata") {
-                setwd("specdata")
+        if  (substr(curr_wd, nchar(curr_wd)-8+1, nchar(curr_wd)) != directory) {
+                setwd(directory)
         }
         
-        for (n in id) {print (n)}
+        mydata <- NULL
+        for (filenumber in id) {
+                #Correction for Filenames, Adding 00 or 0 respectively to id
+                if (nchar(filenumber) == 1) {filenumber <- paste0("00",filenumber)} 
+                else if (nchar(filenumber) == 2) {filenumber <- paste0("0",filenumber)} 
+                myfilename <- paste0(getwd(),"/",filenumber,".csv")
                 
-   
+                #Read in relevant data and combine them
+                new_data <- read.csv(myfilename, header = TRUE)
+                mydata <- rbind(mydata,new_data)
+        }
+                #Calculate mean of pollution and exclude NAs
+                pollution_mean <- mean(mydata[,pollutant], na.rm = TRUE)
+
 }
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+```{r set up, echo=FALSE, message=FALSE, warning=FALSE}
+test <- pollutantmean(directory = "specdata", pollutant = 'nitrate', id = 30:70)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
