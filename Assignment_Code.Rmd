@@ -14,15 +14,16 @@ opts_knit$set(root.dir = 'C:/Users/andre/OneDrive/Dokumente/01_Programming/Cours
 
 ## Exercise 1
 
-Function that calclates the mean of a pollutant (sulfate or nitrate) across a specific list of monitors.
-The function takes three argumens: 'directory', 'pollunten' and 'id'.
+Function that calculates the mean of a pollutant (sulfate or nitrate) across a specific list of monitors.
+The function takes three argumens: 'directory', 'polluntant' and 'id'.
 Thereby all NAs are ignored.
 
-```{r test}
+```{r set up, echo=FALSE}
 pollutantmean <- function(directory, pollutant, id = 1:332){
         
         new_data <- data.frame()
         mydata <- data.frame()
+        curr_wd <- NULL
         
         #Examine if current wd is "specdata"
         curr_wd <- getwd()
@@ -49,10 +50,67 @@ pollutantmean <- function(directory, pollutant, id = 1:332){
 ```
 
 
-
-
 ```{r set up, echo=FALSE, message=FALSE, warning=FALSE}
 test <- pollutantmean(directory = "specdata", pollutant = 'nitrate', id = 30:70)
+print(test)
 ```
+
+## Exercise 2
+Write a function that reads a directory full of files and reports the number of completely observed cases in each data file. 
+The function should return a data frame where the first column is the name of the file and the second column is the number of complete cases.
+
+
+```{r set up, echo=FALSE, eval=FALSE}
+complete <- function(directory, id = 1:332){
+        
+        curr_wd <- NULL
+        new_data <- data.frame()
+        complcases_each_file <- data.frame()
+        complcases_new_data <- data.frame()
+        
+        #Examine if current wd is "specdata"
+        curr_wd <- getwd()
+        
+        if  (substr(curr_wd, nchar(curr_wd)-8+1, nchar(curr_wd)) != directory) {
+                setwd(directory)
+        }
+        
+        mydata <- NULL
+        for (filenumber in id) {
+                
+                #Correction for Filenames, Adding 00 or 0 respectively to id
+                if (nchar(filenumber) == 1) {filenumber <- paste0("00",filenumber)} 
+                else if (nchar(filenumber) == 2) {filenumber <- paste0("0",filenumber)} 
+                myfilename <- paste0(getwd(),"/",filenumber,".csv")
+                
+                #Build dataframe, read new data and add number of complete cases to df mydata
+                new_data <- read.csv(myfilename, header = TRUE)
+                complcases_new_data[1,1] <- new_data$ID[1]
+                complcases_new_data[1,2] <- sum(complete.cases(new_data))
+                
+                complcases_each_file <- rbind(complcases_each_file,complcases_new_data)
+                
+                
+        }
+        names(complcases_each_file) <- c("ID","Nobs")
+        complcases_each_file
+}
+
+
+
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+test <- complete(directory = "specdata", id = 3)
+print(test)
+
+```
+
+
+
+
+
 
 
